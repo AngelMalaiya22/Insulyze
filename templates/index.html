@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GlycoLens | Diabetes Risk Predictor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>🩸 GlycoLens</h1>
+    <p>Machine-learning diabetes risk screening</p>
+  </header>
+
+  <main>
+    <form method="post" class="card" novalidate>
+      <h2>Patient details</h2>
+      {% if errors %}
+      <div class="errors">
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+      <div class="grid">
+        {% for key, (label, lo, hi, typ) in fields.items() %}
+        <label>
+          <span>{{ label }}</span>
+          <input type="number" name="{{ key }}" min="{{ lo }}" max="{{ hi }}"
+                 step="{{ '1' if typ.__name__ == 'int' else 'any' }}"
+                 value="{{ values.get(key, '') }}" required>
+          <small>Range: {{ lo }} to {{ hi }}</small>
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit">Predict risk</button>
+    </form>
+
+    {% if result %}
+    <section class="card result {{ 'high' if result.high_risk else 'low' }}">
+      <h2>{{ result.label }}</h2>
+      <p class="pct">{{ result.percent }}%</p>
+      <div class="bar"><div class="fill" style="width: {{ result.percent }}%"></div></div>
+      <p>Estimated probability of diabetes based on the values entered.</p>
+    </section>
+    {% endif %}
+
+    <p class="disclaimer">
+      ⚠️ Educational project, not a medical diagnosis. Trained on 768 records of Pima Indian women
+      aged 21+, so results may not generalise to other groups. Please consult a doctor for any health decision.
+    </p>
+  </main>
+</body>
+</html>
